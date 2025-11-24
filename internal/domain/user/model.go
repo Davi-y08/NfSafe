@@ -11,4 +11,3 @@ type User struct {
 	PasswordHash string `json:"-"`
 	Role string `json:"role" gorm:"default:user"`
 }
-
