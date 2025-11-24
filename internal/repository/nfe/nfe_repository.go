@@ -38,6 +38,7 @@ func (r *NfeRepository) GetById(ctx context.Context, id uint) (*nfe.Nfe, error){
 func (r *NfeRepository) GetNFEsByCnpj(ctx context.Context, cnpj string) ([]nfe.Nfe, error){
 	var nfes []nfe.Nfe
 	result := r.db.WithContext(ctx).Where("cnpj = ?", cnpj).Find(&nfes)
+	//select * from nfes where cnpj = ? 
 
 	if result.Error != nil{
 		return nil, result.Error
@@ -57,6 +58,3 @@ func (r *NfeRepository) GetAllNFEs(ctx context.Context) ([]nfe.Nfe, error){
 	return nfes, nil
 }
 
-
-
-//select * from nfes where cnpj = ? 

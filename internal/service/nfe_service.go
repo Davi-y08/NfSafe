@@ -17,6 +17,7 @@ var (
 	ErrInvalidValueNFE = errors.New("valor de nota inválido")
 	ErrInvalidId = errors.New("id inválida")
 	ErrInDatabaseNFE = errors.New("ocorreu um erro com o banco de dados")
+	ErrInCnpjValidation = errors.New("cnpj inválido")
 )
 
 func NewNfeService(repository *repo.NfeRepository) *NfeService{
@@ -54,4 +55,36 @@ func (s *NfeService) GetById(ctx context.Context, id uint) (*nfe.Nfe, error){
 	}
 
 	return n, nil
+}
+
+func (s *NfeService) GetNFEsByCnpj(ctx context.Context, cnpj string) ([]nfe.Nfe, error){
+	if len(cnpj) != 14{
+		return nil, ErrInCnpjValidation
+	}
+
+	nfes, err := s.repo.GetNFEsByCnpj(ctx, cnpj)
+
+	if err != nil{
+		return nil, ErrInDatabaseNFE
+	}
+
+	if nfes == nil{
+		return nil, nil
+	}
+
+	return nfes, nil
+}
+
+func (s *NfeService) GetAllNFEs(ctx context.Context) ([]nfe.Nfe, error){
+	nfes, err := s.repo.GetAllNFEs(ctx)
+
+	if err != nil{
+		return nil, ErrInDatabaseNFE
+	}
+
+	if nfes == nil{
+		return nil, nil
+	}
+
+	return nfes, nil
 }
