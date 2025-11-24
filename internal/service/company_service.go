@@ -13,6 +13,13 @@ type CompanyService struct {
 	repo *repo.CompanyRepository
 }
 
+var (
+	ErrInvalidCNPJ = errors.New("cnpj inválido")
+	ErrInDatabaseCompany = errors.New("ocorreu um erro com o banco de dados")
+	ErrCompanyExisting = errors.New("empresa já cadastrada")
+	ErrNotFoundCompany = errors.New("empresa não encontrada")
+)
+
 func NewCompanyService(repository *repo.CompanyRepository) *CompanyService{
 	return &CompanyService{repository}
 }
@@ -20,18 +27,18 @@ func NewCompanyService(repository *repo.CompanyRepository) *CompanyService{
 func (s *CompanyService) CreateCompany(ctx context.Context , u user.User, cnpj, name string) error {	
 	
 	if len(cnpj) != 14{
-		return errors.New("cnpj inválido")
+		return ErrInvalidCNPJ
 	}
 
 	existing, erro := s.repo.GetByCnpj(ctx, cnpj)
 
 	if erro != nil{
 		fmt.Println("Erro GetByCnpj:", erro)
-		return errors.New("ocorreu um erro no banco de dados")
+		return ErrInDatabaseCompany
 	}
 
 	if existing != nil{
-		return errors.New("empresa já cadastrada")
+		return ErrCompanyExisting
 	}
 
 	new_company := &company.Company{
@@ -46,17 +53,17 @@ func (s *CompanyService) CreateCompany(ctx context.Context , u user.User, cnpj, 
 
 func (s *CompanyService) GetByCnpj(ctx context.Context, cnpj string) (*company.Company, error) {
 	if len(cnpj) == 0{
-		return nil, errors.New("cnpj vazio")
+		return nil, ErrInvalidCNPJ
 	}
 
 	comp, err := s.repo.GetByCnpj(ctx, cnpj) 
 
 	if err != nil{
-		return nil, errors.New("ocorreu um erro com o banco de dados")
+		return nil, ErrInDatabaseCompany
 	}
 
 	if comp == nil{
-		return nil, errors.New("empresa não encontrada")
+		return nil, ErrNotFoundCompany
 	}
 
 	return comp, nil

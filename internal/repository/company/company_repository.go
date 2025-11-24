@@ -34,7 +34,7 @@ func (r *CompanyRepository) GetByCnpj(ctx context.Context, cnpj string) (*compan
 	return &comp, nil
 }
 
-func (r *CompanyRepository) GetById(ctx context.Context, id int) (*company.Company, error){
+func (r *CompanyRepository) GetById(ctx context.Context, id uint) (*company.Company, error){
 	var comp company.Company 
 
 	result := r.db.WithContext(ctx).First(&comp, id)
