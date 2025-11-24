@@ -3,9 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
-	"nf-safe/internal/domain/user"
 	"nf-safe/internal/infra/db"
-	repository "nf-safe/internal/repository/user"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,21 +16,24 @@ func main() {
 	db.RunMigrations(database)
 
 	// 2. Criar repo
-	repo := repository.NewUserRepository(database)
+	//repo := repository.NewUserRepository(database)
 
 	// 3. Testar inserção
-	u := &user.User{
-		Name:         "Elton Davi",
-		Email:        "teste@gmail.com",
-		PasswordHash: "elton123",
-	}
+	//u := &user.User{
+	//	Name:         "Elton Davi",
+	//	Email:        "teste@gmail.com",
+	//	PasswordHash: "elton123",
+	//}
 
-	err := repo.CreateUser(u)
-	if err != nil {
-		log.Println("erro ao criar:", err)
-	} else {
-		log.Println("usuário criado! ID:", u.ID)
-	}
+	//ctx := context.Background()
+
+	//err := repo.CreateUser(ctx, u)
+	
+	//if err != nil {
+	//	log.Println("erro ao criar:", err)
+	//} else {
+	//	log.Println("usuário criado! ID:", u.ID)
+	//}
 
 	// 4. Subir servidor
 	r := gin.Default()
