@@ -136,7 +136,7 @@ func (s *UserService) CreateUser(ctx context.Context, email, name, password stri
 	return s.repo.CreateUser(ctx, new_user)
 }
 
-func (s *UserService) Login(ctx context.Context, email, senha string) (*user.User, error){ 
+func (s *UserService) Login(ctx context.Context, email, senha string) (*user.User, error){
 	if email == "" || senha == ""{
 		return nil, ErrLogin
 	}

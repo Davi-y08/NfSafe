@@ -15,6 +15,8 @@ type NfeService struct{
 var (
 	ErrInvalidNumberNFE = errors.New("numéro inválido")
 	ErrInvalidValueNFE = errors.New("valor de nota inválido")
+	ErrInvalidId = errors.New("id inválida")
+	ErrInDatabaseNFE = errors.New("ocorreu um erro com o banco de dados")
 )
 
 func NewNfeService(repository *repo.NfeRepository) *NfeService{
@@ -38,4 +40,18 @@ func (s *NfeService) Register(ctx context.Context, number int, value float64, c 
 	}
 
 	return s.repo.Create(ctx, new_nfe)
+}
+
+func (s *NfeService) GetById(ctx context.Context, id uint) (*nfe.Nfe, error){
+	if id == 0{
+		return nil, ErrInvalidId
+	}
+
+	n, err := s.repo.GetById(ctx, id)
+
+	if err != nil{
+		return nil, ErrInDatabaseNFE
+	}
+
+	return n, nil
 }
