@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"nf-safe/internal/domain/user"
-	"time"
-
 	"gorm.io/gorm"
 )
 
@@ -42,16 +40,6 @@ func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (*use
 	}
 
 	return &u, nil
-}
-
-func (r *UserRepository) UpdateUserPlan(ctx context.Context, userId uint, plan string, expiresAt *time.Time) error {
-    return r.db.Model(&user.User{}).WithContext(ctx).
-        Where("id = ?", userId).
-        Updates(&user.User{
-			Plan: plan,
-			PlanExpiresAt: expiresAt,
-			SubscriptionStatus: "active",
-		}).Error
 }
 
 func (r *UserRepository) UpdateSubscriptionUser(ctx context.Context, userId uint, status string) error{

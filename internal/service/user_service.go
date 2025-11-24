@@ -9,9 +9,7 @@ import (
 	"nf-safe/internal/domain/user"
 	repo "nf-safe/internal/repository/user"
 	"os"
-
 	"github.com/stripe/stripe-go/v78"
-	"github.com/stripe/stripe-go/v78/customer"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -128,13 +126,6 @@ func (s *UserService) CreateUser(ctx context.Context, email, name, password stri
 		return ErrCriptPass
 	}
 
-	params := &stripe.CustomerParams{
-		Email: stripe.String(email),
-		Name: stripe.String(name),
-	}
-
-	stripeCustomer, err := customer.New(params)
-
 	if err != nil{
 		return ErrStriperError
 	}
@@ -144,7 +135,6 @@ func (s *UserService) CreateUser(ctx context.Context, email, name, password stri
 		Email: email,
 		PasswordHash: hash,
 		Role: "user",
-		StripeCustomerID: stripeCustomer.ID,
 	}
 
 	return s.repo.CreateUser(ctx, new_user)
