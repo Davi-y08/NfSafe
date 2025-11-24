@@ -126,10 +126,6 @@ func (s *UserService) CreateUser(ctx context.Context, email, name, password stri
 		return ErrCriptPass
 	}
 
-	if err != nil{
-		return ErrStriperError
-	}
-
 	new_user := &user.User{
 		Name: name,
 		Email: email,
