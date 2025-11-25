@@ -34,14 +34,14 @@ type UserService struct{
 }
 
 var (
-	ErrEmailInvalid = errors.New("email inválido")
-	ErrPassInvalid = errors.New("senha deve conter no mínimo 6 dígitos")
-	ErrInDatabase = errors.New("ocorreu um erro com o banco de dados")
-	ErrUserNotFound = errors.New("o usuário não foi encontrado")
-	ErrNameInvalid = errors.New("o nome deve ter no mínimo 4 dígitos")
-	ErrCriptPass = errors.New("ocorreu um erro ao criptografar a senha")
-	ErrStriperError = errors.New("ocorreu um erro com o striper_id")
-	ErrLogin = errors.New("email ou senha incorreta")
+	ErrEmailInvalid       = errors.New("email inválido")
+	ErrEmailAlreadyExists = errors.New("email já está em uso")
+	ErrPasswordTooShort   = errors.New("senha deve ter no mínimo 6 caracteres")
+	ErrNameTooShort       = errors.New("nome deve ter no mínimo 4 caracteres")
+	ErrDatabase           = errors.New("erro interno no banco de dados")
+	ErrUserNotFound       = errors.New("usuário não encontrado")
+	ErrHashPassword       = errors.New("falha ao criptografar senha")
+	ErrInvalidCredentials = errors.New("email ou senha incorretos")
 )
 
 func hashPassword(pass string) (string, error) {
@@ -73,7 +73,7 @@ func (s *UserService) GetUserByEmail(ctx context.Context, email string) (*user.U
 	u, err := s.repo.GetUserByEmail(ctx, email)
 
 	if err != nil{
-		return nil, ErrInDatabase
+		return nil, ErrDatabase
 	}
 
 	if u == nil{
@@ -87,7 +87,7 @@ func (s *UserService) GetUserById(ctx context.Context, id uint) (*user.User, err
 	u, err := s.repo.GetUserById(ctx, id)
 
 	if err != nil{
-		return nil, ErrInDatabase
+		return nil, ErrDatabase
 	}
 
 	if u == nil{
@@ -97,33 +97,33 @@ func (s *UserService) GetUserById(ctx context.Context, id uint) (*user.User, err
 	return u, nil
 }
 
-func (s *UserService) CreateUser(ctx context.Context, email, name, password string) error {
+func (s *UserService) CreateUser(ctx context.Context, email, name, password string) (*user.User, error) {
 	if len(password) < 6{
-		return ErrPassInvalid
+		return nil, ErrPasswordTooShort
 	}
 
 	if !validateEmail(email){
-		return ErrEmailInvalid
+		return nil, ErrEmailInvalid
 	}
 
 	if len(name) < 4{
-		return ErrNameInvalid
+		return nil, ErrNameTooShort
 	}	
 
 	existing, erro := s.repo.GetUserByEmail(ctx, email)
 
 	if erro != nil {
-		return ErrInDatabase
+		return nil, ErrDatabase
 	}
 
 	if existing != nil{
-		return ErrEmailInvalid
+		return nil, ErrEmailAlreadyExists
 	}
 
 	hash, err := hashPassword(password)
 
 	if err != nil{
-		return ErrCriptPass
+		return nil, ErrHashPassword
 	}
 
 	new_user := &user.User{
@@ -133,28 +133,32 @@ func (s *UserService) CreateUser(ctx context.Context, email, name, password stri
 		Role: "user",
 	}
 
-	return s.repo.CreateUser(ctx, new_user)
+	if err := s.repo.CreateUser(ctx, new_user); err != nil {
+		return nil, ErrDatabase
+	}
+
+	return new_user, nil
 }
 
 func (s *UserService) Login(ctx context.Context, email, senha string) (*user.User, error){
 	if email == "" || senha == ""{
-		return nil, ErrLogin
+		return nil, ErrInvalidCredentials
 	}
 
 	u, err := s.repo.GetUserByEmail(ctx, email)
 
 	if err != nil{
-		return nil, ErrInDatabase
+		return nil, ErrDatabase
 	}
 
 	if u == nil{
-		return nil, ErrLogin
+		return nil, ErrInvalidCredentials
 	}
 
 	pass_hash := u.PasswordHash
 
 	if !CheckPassword(pass_hash, senha){
-		return nil, ErrLogin
+		return nil, ErrInvalidCredentials
 	}
 
 	return u, nil

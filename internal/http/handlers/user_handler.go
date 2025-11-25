@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"nf-safe/internal/domain/user"
 	"nf-safe/internal/service"
@@ -22,7 +21,7 @@ func (h *UserHandler) CreateUser(c *gin.Context){
 	
 	if err := c.ShouldBindJSON(&dto); err != nil{
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error: ": "invalid body",
+			"error: ": "corpo inválido",
 		})
 		return
 	}
