@@ -12,7 +12,8 @@ import (
 type UserHandler struct {
 	userService *service.UserService
 }
-
+////////////////////////////////////////////////////////////////////////////////
+// Fazer a implementação de: paginations, auth, async
 func NewUserHandler(us *service.UserService) *UserHandler{
 	return &UserHandler{userService: us}
 }
@@ -56,5 +57,44 @@ func (h *UserHandler) CreateUser(c *gin.Context){
 		"id": new_user.ID,
 		"email": new_user.Email,
 		"name": new_user.Name,
+	})
+}
+
+func (h *UserHandler) GetUserByEmail(c *gin.Context){
+	email_query := c.Query("email")
+
+	if email_query == ""{
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "email não pode estar vazio",
+		})
+	}
+
+	user, err := h.userService.GetUserByEmail(c.Request.Context(), email_query)
+
+	if err != nil{
+		if errors.Is(err, service.ErrEmailInvalid){
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		if errors.Is(err, service.ErrUserNotFound){
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "usuário não encontrado",
+			})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "erro interno no servidor",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"email": user.Email,
+		"nome": user.Name,
+		"id": user.ID,
 	})
 }
