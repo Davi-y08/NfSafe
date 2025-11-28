@@ -13,4 +13,5 @@ type Nfe struct {
 	Number int `json:"number"`
 	Value float64 `json:"value"`
 	CreationDataNFE time.Time `json:"creation_data_nfe"`
+	// implement more data
 }

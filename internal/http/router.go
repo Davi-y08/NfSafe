@@ -6,5 +6,5 @@ import (
 )
 
 func NewRouter(userService *service.UserService) *gin.Engine{
-	return gin.Default().HandleMethodNotAllowed().
+	//
 }
