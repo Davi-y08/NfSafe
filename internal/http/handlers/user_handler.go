@@ -98,3 +98,58 @@ func (h *UserHandler) GetUserByEmail(c *gin.Context){
 		"id": user.ID,
 	})
 }
+
+func (h *UserHandler) Login(c *gin.Context) {
+	var dto user.LoginDto
+
+	if err := c.ShouldBindJSON(&dto); err != nil{
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error: ": "corpo inválido",
+		})
+		return 
+	}
+
+	user, err := h.userService.Login(c, dto.Email, dto.PassWord)
+
+	if err != nil{
+		if errors.Is(err, service.ErrDatabase){
+			c.JSON(http.StatusBadGateway, gin.H{
+				"error:": err.Error(),
+			})
+			return
+		}
+
+		if errors.Is(err, service.ErrInvalidCredentials){
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error:": "email ou senha incorreta",
+			})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "erro interno no servidor",
+		})
+		return
+	}
+
+	if user == nil{
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "usuário não encontrado",
+		})
+		return
+	}
+
+	token, err := service.GenerateTokenJwt(user.Email, user.Name, user.ID)
+
+	if err != nil || token == nil{
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "erro ao gerar token jwt",
+		})
+		return
+	}
+
+	
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
+	})
+}
