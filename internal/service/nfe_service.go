@@ -6,6 +6,7 @@ import (
 	"nf-safe/internal/domain/company"
 	"nf-safe/internal/domain/nfe"
 	repo "nf-safe/internal/repository/nfe"
+	"time"
 )
 
 type NfeService struct{
@@ -24,7 +25,16 @@ func NewNfeService(repository *repo.NfeRepository) *NfeService{
 	return &NfeService{repository}
 }
 
-func (s *NfeService) Register(ctx context.Context, number int, value float64, c company.Company) error {
+func (s *NfeService) Register(ctx context.Context, number int, 
+	value float64, 
+	c company.Company, 
+	chave string, 
+	serie int, 
+	emissaoDate time.Time, 
+	status string, 
+	protocolo string, 
+	xml string) error {
+
 	if number == 0{
 		return ErrInvalidNumberNFE
 	}
@@ -38,6 +48,12 @@ func (s *NfeService) Register(ctx context.Context, number int, value float64, c 
 		CompanyID: c.ID,
 		Company: c,
 		Value: value,
+		Chave: chave,
+		EmissaoDate: emissaoDate,
+		XML: xml,
+		Status: status,
+		Protocolo: protocolo,
+		Serie: serie,
 	}
 
 	return s.repo.Create(ctx, new_nfe)
