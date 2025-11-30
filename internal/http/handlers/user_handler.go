@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"nf-safe/internal/domain/user"
 	"nf-safe/internal/service"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -99,6 +100,49 @@ func (h *UserHandler) GetUserByEmail(c *gin.Context){
 	})
 }
 
+func (h *UserHandler) GetUserById(c *gin.Context){
+	id_string := c.Query("id")
+	id, err := strconv.ParseUint(id_string, 10, 32)
+
+	if err != nil{
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "erro ao converter a id para Uint",
+		})
+		return 
+	}
+
+	var id_int uint = uint(id)
+
+	user, err := h.userService.GetUserById(c.Request.Context(), id_int)
+
+	if err != nil{
+		if errors.Is(err, service.ErrEmailInvalid){
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		if errors.Is(err, service.ErrUserNotFound){
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "usuário não encontrado",
+			})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "erro interno no servidor",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"email": user.Email,
+		"nome": user.Name,
+		"id": user.ID,
+	})
+}
+
 func (h *UserHandler) Login(c *gin.Context) {
 	var dto user.LoginDto
 
@@ -148,7 +192,6 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	
 	c.JSON(http.StatusOK, gin.H{
 		"token": token,
 	})
