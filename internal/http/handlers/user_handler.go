@@ -197,4 +197,3 @@ func (h *UserHandler) Login(c *gin.Context) {
 		"token": token,
 	})
 }
-

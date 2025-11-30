@@ -24,7 +24,7 @@ func NewCompanyService(repository *repo.CompanyRepository) *CompanyService{
 	return &CompanyService{repository}
 }
 
-func (s *CompanyService) CreateCompany(ctx context.Context , u user.User, cnpj, name string) error {	
+func (s *CompanyService) CreateCompany(ctx context.Context , u user.User, cnpj, name, razaoSocial, nomeFantasia, status string) error {	
 	
 	if len(cnpj) != 14{
 		return ErrInvalidCNPJ
@@ -46,6 +46,9 @@ func (s *CompanyService) CreateCompany(ctx context.Context , u user.User, cnpj, 
 		UserID: u.ID,
 		User: u,
 		Cnpj: cnpj,
+		Status: status,
+		NomeFantasia: nomeFantasia,
+		RazaoSocial: razaoSocial,
 	}
 
 	return s.repo.Create(ctx, new_company)
