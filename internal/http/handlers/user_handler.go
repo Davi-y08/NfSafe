@@ -68,6 +68,7 @@ func (h *UserHandler) GetUserByEmail(c *gin.Context){
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "email não pode estar vazio",
 		})
+		return
 	}
 
 	user, err := h.userService.GetUserByEmail(c.Request.Context(), email_query)
@@ -102,6 +103,13 @@ func (h *UserHandler) GetUserByEmail(c *gin.Context){
 
 func (h *UserHandler) GetUserById(c *gin.Context){
 	id_string := c.Query("id")
+
+	if id_string == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "o id não pode estar vazio",
+		})
+	}
+
 	id, err := strconv.ParseUint(id_string, 10, 32)
 
 	if err != nil{
@@ -119,13 +127,6 @@ func (h *UserHandler) GetUserById(c *gin.Context){
 		if errors.Is(err, service.ErrEmailInvalid){
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
-			})
-			return
-		}
-
-		if errors.Is(err, service.ErrUserNotFound){
-			c.JSON(http.StatusNotFound, gin.H{
-				"error": "usuário não encontrado",
 			})
 			return
 		}
@@ -153,12 +154,12 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return 
 	}
 
-	user, err := h.userService.Login(c, dto.Email, dto.PassWord)
+	user, err := h.userService.Login(c.Request.Context(), dto.Email, dto.PassWord)
 
 	if err != nil{
 		if errors.Is(err, service.ErrDatabase){
 			c.JSON(http.StatusBadGateway, gin.H{
-				"error:": err.Error(),
+				"error": err.Error(),
 			})
 			return
 		}
@@ -185,7 +186,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 
 	token, err := service.GenerateTokenJwt(user.Email, user.Name, user.ID)
 
-	if err != nil || token == nil{
+	if err != nil || token == ""{
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "erro ao gerar token jwt",
 		})
@@ -196,3 +197,4 @@ func (h *UserHandler) Login(c *gin.Context) {
 		"token": token,
 	})
 }
+

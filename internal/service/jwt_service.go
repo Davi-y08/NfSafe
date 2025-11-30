@@ -30,7 +30,7 @@ func getRoleUser(email string) string{
 	return "user"
 }
 
-func GenerateTokenJwt(email, username string, id uint) (*string, error){
+func GenerateTokenJwt(email, username string, id uint) (string, error){
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": id,
 		"preferred_username": username,
@@ -44,8 +44,8 @@ func GenerateTokenJwt(email, username string, id uint) (*string, error){
 	tokenString, err := claims.SignedString(jwt_key)
 
 	if err != nil{
-		return nil, errors.New("não foi possivel gerar o token")
+		return "", errors.New("não foi possivel gerar o token")
 	}
 
-	return &tokenString, nil
+	return tokenString, nil
 }
