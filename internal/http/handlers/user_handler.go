@@ -6,7 +6,6 @@ import (
 	"nf-safe/internal/domain/user"
 	"nf-safe/internal/service"
 	"strconv"
-
 	"github.com/gin-gonic/gin"
 )
 
