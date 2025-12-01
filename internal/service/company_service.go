@@ -24,21 +24,21 @@ func NewCompanyService(repository *repo.CompanyRepository) *CompanyService{
 	return &CompanyService{repository}
 }
 
-func (s *CompanyService) CreateCompany(ctx context.Context , u user.User, cnpj, name, razaoSocial, nomeFantasia, status string) error {	
+func (s *CompanyService) CreateCompany(ctx context.Context , u user.User, cnpj, name, razaoSocial, nomeFantasia, status string) (*company.Company, error) {	
 	
 	if len(cnpj) != 14{
-		return ErrInvalidCNPJ
+		return nil, ErrInvalidCNPJ
 	}
 
 	existing, erro := s.repo.GetByCnpj(ctx, cnpj)
 
 	if erro != nil{
 		fmt.Println("Erro GetByCnpj:", erro)
-		return ErrInDatabaseCompany
+		return nil, ErrInDatabaseCompany
 	}
 
 	if existing != nil{
-		return ErrCompanyExisting
+		return nil, ErrCompanyExisting
 	}
 
 	new_company := &company.Company{
@@ -51,7 +51,11 @@ func (s *CompanyService) CreateCompany(ctx context.Context , u user.User, cnpj, 
 		RazaoSocial: razaoSocial,
 	}
 
-	return s.repo.Create(ctx, new_company)
+	if err := s.repo.Create(ctx, new_company); err != nil{
+		return nil, ErrDatabase
+	}
+
+	return new_company, nil 
 }
 
 func (s *CompanyService) GetByCnpj(ctx context.Context, cnpj string) (*company.Company, error) {

@@ -1,7 +1,7 @@
 package company
 
 type CreateCompanyDto struct{
-	UserID string `json:"user_id"`
+	UserID uint `json:"user_id"`
 	Cnpj string `json:"cnpj"`
 	Name string `json:"name"`
 	RazaoSocial string `json:"razao_social"`
