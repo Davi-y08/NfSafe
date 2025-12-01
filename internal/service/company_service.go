@@ -52,7 +52,7 @@ func (s *CompanyService) CreateCompany(ctx context.Context , u user.User, cnpj, 
 	}
 
 	if err := s.repo.Create(ctx, new_company); err != nil{
-		return nil, ErrDatabase
+		return nil, ErrDatabase	
 	}
 
 	return new_company, nil 
